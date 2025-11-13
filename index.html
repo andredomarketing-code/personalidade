@@ -13,12 +13,15 @@
         .teste-canais th, .teste-canais td { border: 1px solid #ddd; padding: 8px; text-align: left; }
         .teste-canais th { background-color: #f8f8f8; }
         .teste-disc .pergunta { margin-bottom: 15px; border-left: 3px solid #007bff; padding-left: 10px; }
+        .teste-disc label { display: block; margin-bottom: 5px; }
         .resultado { display: none; margin-top: 30px; padding: 20px; border: 2px solid #28a745; background-color: #eaffea; border-radius: 5px; }
         .resultado h2 { color: #28a745; }
         .resultado table { width: 100%; border-collapse: collapse; margin-top: 15px; }
         .resultado th, .resultado td { border: 1px solid #28a745; padding: 10px; text-align: center; }
         .resultado th { background-color: #d4edda; }
         .print-btn { background-color: #007bff; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; margin-top: 20px; }
+        
+        /* Estilos de impressão (para facilitar o print) */
         @media print {
             body { background: white; }
             .container { box-shadow: none; border: none; }
@@ -38,10 +41,10 @@
         <h2>Teste 1: Canais de Comunicação (Visual, Auditivo, Sensação)</h2>
         <div class="instrucoes">
             **Instruções:** Responda, sem pensar, atribuindo valores conforme a frequência com que você age assim:
-            <br>**(5) - Sempre ajo assim** [cite: 3]
-            <br>**(3) - Frequentemente ajo assim** [cite: 4]
-            <br>**(1) - Algumas vezes ajo assim** [cite: 5]
-            <br>**(0) - Nunca ajo assim** [cite: 6]
+            <br>**(5) - Sempre ajo assim**
+            <br>**(3) - Frequentemente ajo assim**
+            <br>**(1) - Algumas vezes ajo assim**
+            <br>**(0) - Nunca ajo assim**
         </div>
 
         <div class="teste-canais">
@@ -60,7 +63,7 @@
 
         <h2>Teste 2: Perfil Comportamental (DISC)</h2>
         <div class="instrucoes">
-            **Instruções (Segunda Parte):** Para cada grupo de 4 palavras abaixo, **escolha APENAS a que MAIS te descreve**[cite: 41].
+            **Instruções (Segunda Parte):** Para cada grupo de 4 palavras abaixo, **escolha APENAS a que MAIS te descreve**.
         </div>
         <div class="teste-disc" id="questoes-disc">
         </div>
@@ -88,7 +91,7 @@
         </table>
 
         <h3>2. Perfil Comportamental (DISC)</h3>
-        <p>O perfil com o maior número de pontos é o seu perfil comportamental mais evidente[cite: 67].</p>
+        <p>O perfil com o maior número de pontos é o seu perfil comportamental mais evidente.</p>
         <table>
             <thead>
                 <tr>
@@ -146,7 +149,7 @@
     // --- DADOS DO TESTE DISC ---
     // Estrutura: [A-COMUNICADOR, B-EXECUTOR, C-ANALÍTICO, D-APOIO]
     const discData = [
-        ["Desorganizado", "Mandão", "Deprimido", "Confuso"], // Usando a primeira linha do documento [cite: 29] como exemplo e corrigindo a estrutura.
+        ["Desorganizado", "Mandão", "Deprimido", "Confuso"],
         ["Dessarumado", "Influenciado", "Triste", "Resmungão"],
         ["Barulhento", "Autoritário", "Solitário", "Preguiçoso"],
         ["Agitado", "Descuidado", "Vingativo", "Teimoso"],
@@ -167,7 +170,7 @@
         ["Metido", "Mandão", "Acanhado", "Vazio"],
         ["Repetitível", "Inflexível", "Ressentido", "Teimoso"],
         ["Atraente", "Chefe", "Detalhista", "Contente"],
-        ["Energético", "Valente", "Comportado", "Equilibrado"], // ( ) Equilibrado no doc, assumindo D
+        ["Energético", "Valente", "Comportado", "Equilibrado"],
         ["Indisciplinado", "Insensível", "Rancoroso", "Desinteressado"],
         ["Esquecido", "Franco", "Complicado", "Medroso"],
         ["Otimista", "Fraco", "Ordeiro", "Pronto"],
@@ -176,10 +179,10 @@
         ["Desembaraçado", "Alívio", "Harmonioso", "Negociador"],
         ["Engraçado", "Forte", "Fiel", "Amigável"],
         ["Alegre", "Confiante", "Bem informado", "Previsível"],
-        ["Demonstra o que pensa", "Decidido", "Pensativo", "Gosta de zombar"], // Últimas linhas do doc [cite: 29]
+        ["Demonstra o que pensa", "Decidido", "Pensativo", "Gosta de zombar"],
         ["Conversador", "Firme", "Pensativo", "Tolerante"],
         ["Animado", "Aventureiro", "Pensa bastante", "Adaptável"],
-        ["Sociável", "Energético", "Doador", "Obediente"], // E no doc, assumindo B para manter o padrão A,B,C,D
+        ["Sociável", "Energético", "Doador", "Obediente"],
         ["Estimulante", "Habilidoso", "Respeitoso", "Reservado"],
         ["Charmoso", "Positivo", "Planejador", "Paciente"],
         ["Brincalhão", "Não desiste fácil", "Sereno", "Persuasivo"],
@@ -188,10 +191,18 @@
         ["Espontâneo", "Seguro", "Organizado", "Calado"]
     ];
 
-    // Mapeamento dos Perfis
-    const perfilNomes = {
-        'V': 'Visual', 'A': 'Auditivo', 'S': 'Sensação',
-        'A': 'COMUNICADOR', 'B': 'EXECUTOR', 'C': 'ANALÍTICO', 'D': 'APOIO'
+    // CORREÇÃO APLICADA AQUI: Mapeamentos separados
+    const canalNomes = {
+        'V': 'Visual', 
+        'A': 'Auditivo', 
+        'S': 'Sensação/Sinestésico'
+    };
+
+    const discNomes = {
+        'A': 'COMUNICADOR', 
+        'B': 'EXECUTOR', 
+        'C': 'ANALÍTICO', 
+        'D': 'APOIO'
     };
 
     function renderizarCanais() {
@@ -280,7 +291,7 @@
 
         // ** Canais de Comunicação **
         const resultadosCanais = Object.entries(pontosCanais).map(([key, value]) => ({
-            perfil: perfilNomes[key],
+            perfil: canalNomes[key], // USANDO canalNomes (CORRIGIDO)
             ponto: value,
             letra: key
         }));
@@ -301,7 +312,7 @@
 
         // ** Perfil DISC **
         const resultadosDISC = Object.entries(contagemDISC).map(([key, value]) => ({
-            perfil: perfilNomes[key],
+            perfil: discNomes[key], // USANDO discNomes (CORRIGIDO)
             contagem: value,
             letra: key
         }));
