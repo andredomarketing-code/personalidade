@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste de Canais de Comunicação e Perfil DISC</title>
+    <style>
+        body { font-family: 'Arial', sans-serif; margin: 20px; background-color: #f4f4f4; color: #333; }
+        .container { max-width: 900px; margin: auto; background: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); }
+        h1, h2 { color: #0056b3; border-bottom: 2px solid #ccc; padding-bottom: 10px; margin-top: 20px; }
+        .instrucoes { background: #e9ecef; padding: 15px; border-radius: 5px; margin-bottom: 20px; }
+        .teste-canais table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+        .teste-canais th, .teste-canais td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        .teste-canais th { background-color: #f8f8f8; }
+        .teste-disc .pergunta { margin-bottom: 15px; border-left: 3px solid #007bff; padding-left: 10px; }
+        .resultado { display: none; margin-top: 30px; padding: 20px; border: 2px solid #28a745; background-color: #eaffea; border-radius: 5px; }
+        .resultado h2 { color: #28a745; }
+        .resultado table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        .resultado th, .resultado td { border: 1px solid #28a745; padding: 10px; text-align: center; }
+        .resultado th { background-color: #d4edda; }
+        .print-btn { background-color: #007bff; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; margin-top: 20px; }
+        @media print {
+            body { background: white; }
+            .container { box-shadow: none; border: none; }
+            .print-btn, .instrucoes, .botoes, form { display: none; }
+            .resultado { display: block !important; border: none; background: none; padding: 0; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div id="formulario">
+        <h1>Identificação</h1>
+        <label for="nome">**Nome Completo:**</label>
+        <input type="text" id="nome" style="width: 100%; padding: 10px; margin-top: 5px; margin-bottom: 20px;" required>
+
+        <h2>Teste 1: Canais de Comunicação (Visual, Auditivo, Sensação)</h2>
+        <div class="instrucoes">
+            **Instruções:** Responda, sem pensar, atribuindo valores conforme a frequência com que você age assim:
+            <br>**(5) - Sempre ajo assim** [cite: 3]
+            <br>**(3) - Frequentemente ajo assim** [cite: 4]
+            <br>**(1) - Algumas vezes ajo assim** [cite: 5]
+            <br>**(0) - Nunca ajo assim** [cite: 6]
+        </div>
+
+        <div class="teste-canais">
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 10%;">#</th>
+                        <th style="width: 70%;">Afirmação</th>
+                        <th style="width: 20%;">Sua Pontuação (0, 1, 3, 5)</th>
+                    </tr>
+                </thead>
+                <tbody id="questoes-canais">
+                </tbody>
+            </table>
+        </div>
+
+        <h2>Teste 2: Perfil Comportamental (DISC)</h2>
+        <div class="instrucoes">
+            **Instruções (Segunda Parte):** Para cada grupo de 4 palavras abaixo, **escolha APENAS a que MAIS te descreve**[cite: 41].
+        </div>
+        <div class="teste-disc" id="questoes-disc">
+        </div>
+
+        <div class="botoes">
+            <button class="print-btn" onclick="calcularResultados()">Ver Resultados</button>
+        </div>
+    </div>
+
+    <div id="resultado" class="resultado">
+        <h2>✅ Resultado dos Testes para: <span id="nome-resultado"></span></h2>
+        
+        <h3>1. Canais de Comunicação (Visual, Auditivo, Sensação/Sinestésico)</h3>
+        <p>O canal com a maior pontuação é o seu meio de comunicação e aprendizado mais evidente.</p>
+        <table>
+            <thead>
+                <tr>
+                    <th>Canal</th>
+                    <th>Pontuação</th>
+                    <th>Perfil Principal</th>
+                </tr>
+            </thead>
+            <tbody id="tabela-canais">
+            </tbody>
+        </table>
+
+        <h3>2. Perfil Comportamental (DISC)</h3>
+        <p>O perfil com o maior número de pontos é o seu perfil comportamental mais evidente[cite: 67].</p>
+        <table>
+            <thead>
+                <tr>
+                    <th>Perfil</th>
+                    <th>Letra</th>
+                    <th>Contagem</th>
+                    <th>Perfil Principal</th>
+                </tr>
+            </thead>
+            <tbody id="tabela-disc">
+            </tbody>
+        </table>
+
+        <button class="print-btn" onclick="window.print()">Imprimir ou Salvar como PDF</button>
+    </div>
+
+</div>
+
+<script>
+    // --- DADOS DO TESTE DE CANAIS DE COMUNICAÇÃO ---
+    // Estrutura: [Afirmação, Canal (V=Visual, A=Auditivo, S=Sensação)]
+    const canaisData = [
+        ["Gosto de seguir entrevistas pelo rádio E pela televisão.", "A"],
+        ["Sou bom fisionomista.", "V"],
+        ["Tenho boa coordenação motora.", "S"],
+        ["Gosto extremamente de casa limpa e asseada.", "V"],
+        ["Para fixar um nome ou um conceito eu O repito várias vezes.", "A"],
+        ["Gosto de ler livros, revistas e jornais.", "V"],
+        ["Anoto tudo o que tenho de fazer.", "V"],
+        ["Em casa prefiro ouvir música DO QUE assistir televisão.", "A"],
+        ["Gosto de fazer exercícios físicos.", "S"],
+        ["Prefiro mais receber informações verbalmente do que por escrito.", "A"],
+        ["Cuido muito da minha aparência.", "V"],
+        ["Sou bom ouvinte.", "A"],
+        ["Prefiro saber mais das coisas mais pelo rádio DO que pelos jornais.", "A"],
+        ["Gosto de observar as pessoas.", "V"],
+        ["Gosto de criar animais de estimação.", "S"],
+        ["Toco nas pessoas quando estou conversando com elas.", "S"],
+        ["Gosto de jogos tipo quebra cabeça ou PARECIDO.", "V"],
+        ["Costumo ficar tenso se o meu dia foi ruim.", "S"],
+        ["Reconheço uma pessoa pelo timbre de voz.", "A"],
+        ["Registro em uma agenda, quase tudo que faço.", "V"],
+        ["Aprecio mais praticar do que assistir esportes.", "S"],
+        ["Gosto de estudar lendo em voz alta OU junto com outras pessoas.", "A"],
+        ["Gosto de ser massageado.", "S"],
+        ["Quando estou em um lugar desconhecido gosto de pedir informações.", "A"],
+        ["Aprecio muito quem se veste bem.", "V"],
+        ["Antes de levantar gosto de espreguiçar.", "S"],
+        ["Gosto de ser abraçado e tocado.", "S"],
+        ["Prefiro mais receber informações por escrito DO QUE verbalmente.", "V"],
+        ["Falo sozinho quando estou pensando ou resolvendo um problema.", "A"],
+        ["Gosto de trabalhos manuais e consertar coisas que estão com defeito.", "S"],
+    ];
+
+    // --- DADOS DO TESTE DISC ---
+    // Estrutura: [A-COMUNICADOR, B-EXECUTOR, C-ANALÍTICO, D-APOIO]
+    const discData = [
+        ["Desorganizado", "Mandão", "Deprimido", "Confuso"], // Usando a primeira linha do documento [cite: 29] como exemplo e corrigindo a estrutura.
+        ["Dessarumado", "Influenciado", "Triste", "Resmungão"],
+        ["Barulhento", "Autoritário", "Solitário", "Preguiçoso"],
+        ["Agitado", "Descuidado", "Vingativo", "Teimoso"],
+        ["Está sempre em mudança", "Intolerante", "Tímido", "Indiferente"],
+        ["Convencido", "Firme", "Discrente", "Lento"],
+        ["Distraído", "Irritável", "Desconfiado", "Vagaroso"],
+        ["Instável", "Esperto", "Crítico", "Acomodado"],
+        ["Incoveniente", "Impaciente", "Inseguro", "Indeciso"],
+        ["Informal", "Cabeçudo", "Insatisfeito", "Estimulado"],
+        ["Esquentado", "Discutidor", "Vendido", "Incerto"],
+        ["Egoísta", "Trabalhador", "Retraído", "Preocupado"],
+        ["Tagarela", "Indelicado", "Sensível demais", "Fala pouco"],
+        ["Ingênuo", "Ousado", "Negativo", "Indiferente"],
+        ["Tolerante", "Orgulhoso", "Cauteloso", "Simples"],
+        ["Imprevisível", "Frio", "Não é muito conhecido", "Desligado"],
+        ["Vivo", "Líder", "Leal", "Ouvinte"],
+        ["Popular", "Produtivo", "Perfeccionista", "Agradável"],
+        ["Metido", "Mandão", "Acanhado", "Vazio"],
+        ["Repetitível", "Inflexível", "Ressentido", "Teimoso"],
+        ["Atraente", "Chefe", "Detalhista", "Contente"],
+        ["Energético", "Valente", "Comportado", "Equilibrado"], // ( ) Equilibrado no doc, assumindo D
+        ["Indisciplinado", "Insensível", "Rancoroso", "Desinteressado"],
+        ["Esquecido", "Franco", "Complicado", "Medroso"],
+        ["Otimista", "Fraco", "Ordeiro", "Pronto"],
+        ["Encantador", "Corre Risco", "Detalhista", "Discuta"],
+        ["Inspirado", "Independente", "Sonhador", "Não prejudica"],
+        ["Desembaraçado", "Alívio", "Harmonioso", "Negociador"],
+        ["Engraçado", "Forte", "Fiel", "Amigável"],
+        ["Alegre", "Confiante", "Bem informado", "Previsível"],
+        ["Demonstra o que pensa", "Decidido", "Pensativo", "Gosta de zombar"], // Últimas linhas do doc [cite: 29]
+        ["Conversador", "Firme", "Pensativo", "Tolerante"],
+        ["Animado", "Aventureiro", "Pensa bastante", "Adaptável"],
+        ["Sociável", "Energético", "Doador", "Obediente"], // E no doc, assumindo B para manter o padrão A,B,C,D
+        ["Estimulante", "Habilidoso", "Respeitoso", "Reservado"],
+        ["Charmoso", "Positivo", "Planejador", "Paciente"],
+        ["Brincalhão", "Não desiste fácil", "Sereno", "Persuasivo"],
+        ["Convincente", "Atencioso", "Competitivo", "Controlado"],
+        ["Esperituoso", "Auto-suficiente", "Sensível", "Satisfeito"],
+        ["Espontâneo", "Seguro", "Organizado", "Calado"]
+    ];
+
+    // Mapeamento dos Perfis
+    const perfilNomes = {
+        'V': 'Visual', 'A': 'Auditivo', 'S': 'Sensação',
+        'A': 'COMUNICADOR', 'B': 'EXECUTOR', 'C': 'ANALÍTICO', 'D': 'APOIO'
+    };
+
+    function renderizarCanais() {
+        const tabela = document.getElementById('questoes-canais');
+        canaisData.forEach((item, index) => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${index + 1}</td>
+                <td>${item[0]}</td>
+                <td>
+                    <select class="ponto-canal" data-canal="${item[1]}" required>
+                        <option value="">Selecione</option>
+                        <option value="5">5</option>
+                        <option value="3">3</option>
+                        <option value="1">1</option>
+                        <option value="0">0</option>
+                    </select>
+                </td>
+            `;
+            tabela.appendChild(tr);
+        });
+    }
+
+    function renderizarDISC() {
+        const div = document.getElementById('questoes-disc');
+        discData.forEach((item, index) => {
+            const divPergunta = document.createElement('div');
+            divPergunta.className = 'pergunta';
+            divPergunta.innerHTML = `
+                <p><strong>${index + 1}. Qual MAIS te descreve?</strong></p>
+                ${item.map((palavra, i) => {
+                    const letra = ['A', 'B', 'C', 'D'][i];
+                    return `
+                        <label>
+                            <input type="radio" name="disc-${index}" value="${letra}" required>
+                            (${letra}) ${palavra}
+                        </label><br>
+                    `;
+                }).join('')}
+            `;
+            div.appendChild(divPergunta);
+        });
+    }
+
+    function calcularResultados() {
+        const nome = document.getElementById('nome').value.trim();
+        if (!nome) {
+            alert("Por favor, preencha seu nome.");
+            return;
+        }
+
+        // 1. Validar e Calcular Canais
+        const pontosCanais = { V: 0, A: 0, S: 0 };
+        const selectsCanais = document.querySelectorAll('.ponto-canal');
+        
+        let canaisValidos = true;
+        selectsCanais.forEach(select => {
+            if (select.value === "") {
+                canaisValidos = false;
+            } else {
+                const canal = select.dataset.canal;
+                pontosCanais[canal] += parseInt(select.value);
+            }
+        });
+
+        if (!canaisValidos) {
+            alert("Por favor, responda a todas as perguntas do Teste de Canais de Comunicação.");
+            return;
+        }
+
+        // 2. Validar e Contar DISC
+        const contagemDISC = { A: 0, B: 0, C: 0, D: 0 };
+        const radiosDISC = document.querySelectorAll('.teste-disc input[type="radio"]:checked');
+
+        if (radiosDISC.length !== discData.length) {
+            alert(`Por favor, responda a todas as ${discData.length} perguntas do Teste DISC.`);
+            return;
+        }
+
+        radiosDISC.forEach(radio => {
+            contagemDISC[radio.value] += 1;
+        });
+
+        // 3. Exibir Resultados
+        document.getElementById('nome-resultado').textContent = nome;
+
+        // ** Canais de Comunicação **
+        const resultadosCanais = Object.entries(pontosCanais).map(([key, value]) => ({
+            perfil: perfilNomes[key],
+            ponto: value,
+            letra: key
+        }));
+        resultadosCanais.sort((a, b) => b.ponto - a.ponto);
+
+        let htmlCanais = '';
+        resultadosCanais.forEach((r, i) => {
+            const isPrincipal = i === 0;
+            htmlCanais += `
+                <tr>
+                    <td>${r.perfil}</td>
+                    <td>${r.ponto}</td>
+                    <td>${isPrincipal ? '**SIM**' : 'Não'}</td>
+                </tr>
+            `;
+        });
+        document.getElementById('tabela-canais').innerHTML = htmlCanais;
+
+        // ** Perfil DISC **
+        const resultadosDISC = Object.entries(contagemDISC).map(([key, value]) => ({
+            perfil: perfilNomes[key],
+            contagem: value,
+            letra: key
+        }));
+        resultadosDISC.sort((a, b) => b.contagem - a.contagem);
+        
+        let htmlDISC = '';
+        resultadosDISC.forEach((r, i) => {
+            const isPrincipal = i === 0;
+            htmlDISC += `
+                <tr>
+                    <td>${r.perfil}</td>
+                    <td>${r.letra}</td>
+                    <td>${r.contagem}</td>
+                    <td>${isPrincipal ? '**SIM**' : 'Não'}</td>
+                </tr>
+            `;
+        });
+        document.getElementById('tabela-disc').innerHTML = htmlDISC;
+
+        // Mostrar a tela de resultados e esconder o formulário
+        document.getElementById('formulario').style.display = 'none';
+        document.getElementById('resultado').style.display = 'block';
+    }
+
+    // Inicialização
+    window.onload = () => {
+        renderizarCanais();
+        renderizarDISC();
+    };
+</script>
+
+</body>
+</html>
